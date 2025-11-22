@@ -1,0 +1,6 @@
+# tex编译附带文件及pdf结果
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.pdf
