@@ -120,8 +120,11 @@ graph LR
     Model --> Data[data/<br/>本地数据集]
     Model --> ModelCode[codes]
     
-    Data --> Label1[label1/<br/>标签]
-    Data --> Label2[label2/<br/>标签]
+    Data --> Train[train/<br/>训练集]
+    Data --> Test[test/<br/>测试集]
+    Data --> Valid[valid/<br/>验证集]
+    Train --> Label1[label1/<br/>标签]
+    Train --> Label2[label2/<br/>标签]
     
     Label1 --> Img1_1[img1]
     Label1 --> Img1_2[img2]
@@ -133,3 +136,4 @@ graph LR
     
     Report --> ReportCode[codes]
 ```
+训练集,测试集,验证集有相同的结构.
