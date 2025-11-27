@@ -2,7 +2,7 @@
 
 ## 数据集
 
-数据集来自开源社区 _hugging face_ :[deepfake_face_classification](https://huggingface.co/datasets/pujanpaudel/deepfake_face_classification).
+数据集来自开源社区 *hugging face* :[deepfake_face_classification](https://huggingface.co/datasets/pujanpaudel/deepfake_face_classification).
 
 ## 项目环境
 
@@ -18,7 +18,7 @@
 4. `` conda install pip ``
 5. `torch`库安装参考:
     - [pytorch官网](https://pytorch.org):`` pip insatll torch torchvision ``
-    - 推荐[阿里云镜像](https://mirrors.aliyun.com)`` pip install torch torchvision -f https://mirrors.aliyun.com/pytorch-wheels/cu128 ``(阿里云镜像可以很方便地通过修改链接中的 _cu128_ 来控制版本)
+    - 推荐[阿里云镜像](https://mirrors.aliyun.com)`` pip install torch torchvision -f https://mirrors.aliyun.com/pytorch-wheels/cu128 ``(阿里云镜像可以很方便地通过修改链接中的 *cu128* 来控制版本)
 
 
 ## 版本控制
@@ -75,3 +75,61 @@
     # 删除远程分支
     git push origin --delete feature/new-feature
     ```
+
+## 文件结构
+
+<!--
+以下是字符树形式的文件结构
+```text
+    根目录(例如~/projects/AFC)
+    |-- webui/            #UI界面
+    |   |-- code
+    |-- webserver/        #web服务器
+    |   |-- code
+    |-- model/            #模型
+    |   |-- data/         #本地数据集
+    |   |   |-- label1/   #标签
+    |   |   |   |-- img1
+    |   |   |   |-- img2
+    |   |   |   |-- ...
+    |   |   |-- label2/
+    |   |   |   |-- img1
+    |   |   |   |-- img2
+    |   |   |   |-- ...
+    |   |-- code
+    |-- report/           #报告
+    |   |-- code
+    |-- README.md
+```
+-->
+
+```mermaid
+graph LR
+    Root[根目录<br/>例如:~/projects/AFC]
+    
+    Root --> WebUI[webui/<br/>UI界面]
+    Root --> WebServer[webserver/<br/>web服务器]
+    Root --> Model[model/<br/>模型]
+    Root --> Report[report/<br/>报告]
+    Root --> README[README.md]
+    
+    WebUI --> WebUICode[codes]
+    
+    WebServer --> WebServerCode[codes]
+    
+    Model --> Data[data/<br/>本地数据集]
+    Model --> ModelCode[codes]
+    
+    Data --> Label1[label1/<br/>标签]
+    Data --> Label2[label2/<br/>标签]
+    
+    Label1 --> Img1_1[img1]
+    Label1 --> Img1_2[img2]
+    Label1 --> Img1_Dots[...]
+    
+    Label2 --> Img2_1[img1]
+    Label2 --> Img2_2[img2]
+    Label2 --> Img2_Dots[...]
+    
+    Report --> ReportCode[codes]
+```
