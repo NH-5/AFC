@@ -1,7 +1,6 @@
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
-from pathlib import Path
 
 def PNGLoader(trainpath, testpath, validpath,batch_size=64, shuffle=False):
     transform = transforms.Compose([
@@ -17,7 +16,8 @@ def PNGLoader(trainpath, testpath, validpath,batch_size=64, shuffle=False):
     return train_loader, test_loader, valid_loader
 
 if __name__ == '__main__':
-
+    """调试用"""
+    from pathlib import Path
     modelpath = Path(__file__).resolve()
     modelpath = modelpath.parent
 
