@@ -65,7 +65,7 @@
     # 推送到你的 Fork
     git push -u origin feature/new-feature
     ```
-3. 网页端提交PR
+3. 网页端提交PR,**记得at我**
 4. PR合并后清理本地开发用分支
     ```bash
     # 删除本地分支
