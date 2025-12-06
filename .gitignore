@@ -10,3 +10,6 @@
 
 # 数据集
 data
+
+# python cache
+__pycache__
