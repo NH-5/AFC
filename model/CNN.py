@@ -7,7 +7,7 @@ class CNNet(nn.Module):
         super().__init__()
 
         modelist = nn.ModuleList()
-        for _ in range(4):
+        for _ in range(6):
             modelist.append(
                 bcap(
                     inch=inch,
@@ -27,7 +27,7 @@ class CNNet(nn.Module):
 
 if __name__ == '__main__':
     """调试用"""
-    x = torch.rand(1,3,100,100,device='cuda')
+    x = torch.rand(1,3,224,224,device='cuda')
     net = CNNet(inch=3)
     net = net.to('cuda')
     y = net(x)

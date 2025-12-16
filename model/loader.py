@@ -19,10 +19,14 @@ if __name__ == '__main__':
     """调试用"""
     from pathlib import Path
     modelpath = Path(__file__).resolve()
-    modelpath = modelpath.parent
+    modelpath = modelpath.parent.parent
 
     trainpath = modelpath / 'data/train'
     testpath = modelpath / 'data/test'
     validpath = modelpath / 'data/val'
-    _, _, validloader = PNGLoader(trainpath,testpath,validpath,2)
-    print(len(validloader))
+    _, _, validloader = PNGLoader(trainpath,testpath,validpath,4)
+    for batch in validloader:
+        print(len(batch))
+        print(batch[0][3].size())
+        print(batch[1][3])
+        break
