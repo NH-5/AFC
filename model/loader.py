@@ -4,7 +4,7 @@ from torchvision.datasets import ImageFolder
 
 def PNGLoader(trainpath, testpath, validpath,batch_size=64, shuffle=False):
     transform = transforms.Compose([
-        transforms.Resize((224,224)),
+        transforms.Resize((256,256)),
         transforms.ToTensor()
     ])
     train_dataset = ImageFolder(root=trainpath, transform=transform)

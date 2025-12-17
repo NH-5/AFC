@@ -55,10 +55,10 @@ if __name__ == '__main__':
     validpath = path.parent.parent / 'data/val'
 
 
-    epoches = 50
+    epoches = 30
     lr = 0.001
-    batch_size = 32
-    size = [256,192,128,64,32,8,2]
+    batch_size = 64
+    size = [256,32,2]
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     Loss = []
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     trainloader, testloader, validloader = PNGLoader(trainpath,testpath,validpath,batch_size,True)
     print(f"data load done")
 
-    model = NetWork(3, (224,224), size)
+    model = NetWork(3, (256,256), size)
     model = model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-3)
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     # save_model
     if valid_accuracy >= 0.9:
-        torch.save(model.state_dict(), 'model.pth')
+        torch.save(model, 'model.pth')
         print(f"model save done")
 
     # time now
