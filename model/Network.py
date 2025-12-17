@@ -9,7 +9,8 @@ class NetWork(nn.Module):
 
         self.cnn = cnn(inch)
         with torch.no_grad():
-            dummy = torch.zeros(1, *insize)
+            imgsize = (inch, *insize)
+            dummy = torch.zeros(1, *imgsize)
             out = self.cnn(dummy)
             self.flat_dim = out.numel()
         size.insert(0,self.flat_dim)
@@ -21,7 +22,7 @@ class NetWork(nn.Module):
 
 if __name__ == '__main__':
     x = torch.randn(8, 3, 224, 224, device='cuda')
-    net = NetWork(3, (3, 224, 224), [20, 2])
+    net = NetWork(3, (224, 224), [20, 2])
     net = net.to('cuda')
     y = net(x)
     print(y)

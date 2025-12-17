@@ -13,3 +13,9 @@ data
 
 # python cache
 __pycache__
+
+# 模型文件
+*.pth
+
+# logs
+logs

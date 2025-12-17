@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from pathlib import Path
+from datetime import datetime
 from Network import NetWork
 from loader import PNGLoader
 
@@ -43,27 +44,37 @@ def evaluate(model, test_loader, device):
 
 def valid(model, valid_loader, device):
     accuracy = evaluate(model, valid_loader, device)
-    print(f"Accuracy for Validation is {accuracy}.\n")
+    print(f"Accuracy for Validation is {accuracy}.")
     return accuracy
 
 if __name__ == '__main__':
 
-    modelpath = Path(__file__).resolve()
-    trainpath = modelpath.parent.parent / 'data/train'
-    testpath = modelpath.parent.parent / 'data/test'
-    validpath = modelpath.parent.parent / 'data/val'
+    path = Path(__file__).resolve()
+    trainpath = path.parent.parent / 'data/train'
+    testpath = path.parent.parent / 'data/test'
+    validpath = path.parent.parent / 'data/val'
 
 
-    epoches = 30
+    epoches = 50
     lr = 0.001
     batch_size = 32
+    size = [256,192,128,64,32,8,2]
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    Loss = []
+    Accuracy = []
+    Parameters = {
+        'epoches':epoches,
+        'lr':lr,
+        'batch_size':batch_size,
+        'size':size
+    }
 
 
     trainloader, testloader, validloader = PNGLoader(trainpath,testpath,validpath,batch_size,True)
     print(f"data load done")
 
-    model = NetWork(3, (3,224,224), [256,192,2])
+    model = NetWork(3, (224,224), size)
     model = model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-3)
@@ -72,7 +83,9 @@ if __name__ == '__main__':
     for epoch in range(epoches):
         train_loss = train(model, trainloader, criterion, optimizer, device)
         test_accuracy = evaluate(model, testloader, device)
-        print(f"Epoch {epoch+1} : loss-{train_loss} accuracy-{test_accuracy}.")
+        print(f"Epoch {epoch+1} : loss is {train_loss} accuracy is {test_accuracy}.")
+        Loss.append(train_loss)
+        Accuracy.append(test_accuracy)
 
     valid_accuracy = valid(model, validloader, device)
 
@@ -81,4 +94,18 @@ if __name__ == '__main__':
         torch.save(model.state_dict(), 'model.pth')
         print(f"model save done")
 
+    # time now
+    time = datetime.now().astimezone()
+    time = time.strftime("%Y-%m-%d %H:%M:%S UTC+8")
+
     # save_logs
+    logspath = path / 'logs'
+    logspath.mkdir(exist_ok=True)
+    filepath = logspath / f"{time}.txt"
+    with open(filepath, 'a') as f:
+        for key in Parameters:
+            print(f"{key} is {Parameters[key]}.", file=f)
+
+        for epoch in range(epoches):
+            info = f"Epoch {epoch + 1}: loss is {Loss[epoch]}, accuracy is {Accuracy[epoch]}, validation accuracy is {valid_accuracy}."
+            print(info, file=f)
