@@ -49,10 +49,11 @@ def valid(model, valid_loader, device):
 
 if __name__ == '__main__':
 
-    path = Path(__file__).resolve()
-    trainpath = path.parent.parent / 'data/train'
-    testpath = path.parent.parent / 'data/test'
-    validpath = path.parent.parent / 'data/val'
+    codepath = Path(__file__).resolve()
+    rootpath = codepath.parent.parent
+    trainpath = rootpath / 'data/train'
+    testpath = rootpath / 'data/test'
+    validpath = rootpath / 'data/val'
 
 
     epoches = 30
@@ -91,7 +92,7 @@ if __name__ == '__main__':
 
     # save_model
     if valid_accuracy >= 0.9:
-        torch.save(model, 'model.pth')
+        torch.save(model, 'model.pt')
         print(f"model save done")
 
     # time now
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     time = time.strftime("%Y-%m-%d %H:%M:%S UTC+8")
 
     # save_logs
-    logspath = path / 'logs'
+    logspath = rootpath / 'model/logs/'
     logspath.mkdir(exist_ok=True)
     filepath = logspath / f"{time}.txt"
     with open(filepath, 'a') as f:
