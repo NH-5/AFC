@@ -59,7 +59,7 @@ if __name__ == '__main__':
     epoches = 30
     lr = 0.001
     batch_size = 64
-    size = [256,32,2]
+    size = [2048,512,128,2]
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     Loss = []
@@ -87,22 +87,18 @@ if __name__ == '__main__':
         print(f"Epoch {epoch+1} : loss is {train_loss} accuracy is {test_accuracy}.")
         Loss.append(train_loss)
         Accuracy.append(test_accuracy)
+    print(f"train done")
 
     valid_accuracy = valid(model, validloader, device)
-
-    # save_model
-    if valid_accuracy >= 0.9:
-        torch.save(model, 'model.pt')
-        print(f"model save done")
 
     # time now
     time = datetime.now().astimezone()
     time = time.strftime("%Y-%m-%d %H:%M:%S UTC+8")
 
     # save_logs
-    logspath = rootpath / 'model/logs/'
+    logspath = rootpath / f'model/{time}/'
     logspath.mkdir(exist_ok=True)
-    filepath = logspath / f"{time}.txt"
+    filepath = logspath / f"log.txt"
     with open(filepath, 'a') as f:
         for key in Parameters:
             print(f"{key} is {Parameters[key]}.", file=f)
@@ -110,3 +106,7 @@ if __name__ == '__main__':
         for epoch in range(epoches):
             info = f"Epoch {epoch + 1}: loss is {Loss[epoch]}, accuracy is {Accuracy[epoch]}, validation accuracy is {valid_accuracy}."
             print(info, file=f)
+
+    # save_model
+    savepath = logspath / 'model.pt'
+    torch.save(model, savepath)
