@@ -8,7 +8,7 @@
 
 ### 所用包
 
-`python=3.14.0`,`torch=2.9.1+cu128`, `requests`
+`python=3.14.0`,`torch=2.9.1+cu128`, `requests`, `tkinter`
 
 ### 环境配置
 
