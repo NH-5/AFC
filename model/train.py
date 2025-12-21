@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime
 from Network import NetWork
 from loader import PNGLoader
+import matplotlib.pyplot as plt
 
 def train(model, train_loader, criterion, optimizer, device):
 
@@ -58,8 +59,8 @@ if __name__ == '__main__':
 
     epoches = 30
     lr = 0.001
-    batch_size = 64
-    size = [2048,512,128,2]
+    batch_size = 32
+    size = [256,32,2]
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     Loss = []
@@ -104,9 +105,33 @@ if __name__ == '__main__':
             print(f"{key} is {Parameters[key]}.", file=f)
 
         for epoch in range(epoches):
-            info = f"Epoch {epoch + 1}: loss is {Loss[epoch]}, accuracy is {Accuracy[epoch]}, validation accuracy is {valid_accuracy}."
+            info = f"Epoch {epoch + 1}: loss is {Loss[epoch]}, accuracy is {Accuracy[epoch]}."
             print(info, file=f)
+
+        print(f"Accuracy for Validation is {valid_accuracy}.", file=f)
 
     # save_model
     savepath = logspath / 'model.pt'
     torch.save(model, savepath)
+
+    # visualization
+    plt.figure(figsize=(12, 5))
+
+    plt.subplot(1, 2, 1)
+    plt.plot(range(1, epoches + 1), Loss, label='Train Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Training Loss')
+    plt.legend()
+
+    plt.subplot(1, 2, 2)
+    plt.plot(range(1, epoches + 1), Accuracy, label='Test Accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.title('Test Accuracy')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.savefig(logspath / 'training_plot.png')
+    plt.close()
+
