@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     epoches = 30
     lr = 0.001
-    batch_size = 32
+    batch_size = 128
     size = [256,32,2]
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -115,23 +115,27 @@ if __name__ == '__main__':
     torch.save(model, savepath)
 
     # visualization
-    plt.figure(figsize=(12, 5))
-
-    plt.subplot(1, 2, 1)
-    plt.plot(range(1, epoches + 1), Loss, label='Train Loss')
+    # Plot 1: Training Loss
+    plt.figure(figsize=(8, 6))
+    plt.plot(range(1, epoches + 1), Loss, label='Train Loss', color='blue', linewidth=2)
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.title('Training Loss')
     plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.savefig(logspath / 'training_loss.png')
+    plt.close()
 
-    plt.subplot(1, 2, 2)
-    plt.plot(range(1, epoches + 1), Accuracy, label='Test Accuracy')
+    # Plot 2: Test Accuracy
+    plt.figure(figsize=(8, 6))
+    plt.plot(range(1, epoches + 1), Accuracy, label='Test Accuracy', color='green', linewidth=2)
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     plt.title('Test Accuracy')
     plt.legend()
-
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(logspath / 'training_plot.png')
+    plt.savefig(logspath / 'test_accuracy.png')
     plt.close()
 
