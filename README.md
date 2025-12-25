@@ -12,7 +12,7 @@
 
 ### 环境配置
 
-1. 以下以`conda`为例,其他环境管理方式自行使用
+1. 以下以`conda`为例,其他环境管理方式自行解决环境问题
 2. `` conda create -n <environment name> python=3.14 ``
 3. `` conda activate <environment name> ``
 4. `` conda install pip ``
@@ -97,6 +97,9 @@
     |   |   |   |-- img2
     |   |   |   |-- ...
     |   |-- code
+    |   best_model/       #最优模型的权重及相关日志
+    |   |-- model.pt
+    |   |-- log.txt
     |-- report/           #报告
     |   |-- code
     |-- README.md
@@ -110,6 +113,7 @@ graph LR
     Root --> WebUI[webui/<br/>UI界面]
     Root --> WebServer[webserver/<br/>web服务器]
     Root --> Model[model/<br/>模型]
+    Root --> Best_Model[best_model/<br/>模型权重文件,多次实验后的最优结果]
     Root --> Report[report/<br/>报告]
     Root --> README[README.md]
     
@@ -133,6 +137,9 @@ graph LR
     Label2 --> Img2_1[img1]
     Label2 --> Img2_2[img2]
     Label2 --> Img2_Dots[...]
+
+    Best_Model --> Tensor[model.pt<br/>权重文件]
+    Best_Model --> Logs[log.txt<br/>该权重对应的训练日志]
     
     Report --> ReportCode[codes]
 ```
