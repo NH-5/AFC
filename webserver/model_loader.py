@@ -1,0 +1,98 @@
+"""
+模型加载与推理模块
+
+训练完成后，将 model.pt 文件放到 webserver/ 目录下，
+然后将 USE_MOCK_MODEL 改为 False 即可使用真实模型。
+"""
+
+import torch
+import random
+from pathlib import Path
+
+# ========== 配置 ==========
+USE_MOCK_MODEL = True  # 训练完成后改为 False
+MODEL_PATH = Path(__file__).parent / "model.pt"
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+# ========== 模型加载 ==========
+_model = None
+
+def load_model():
+    """加载模型（仅在首次调用时加载）"""
+    global _model
+    
+    if USE_MOCK_MODEL:
+        print("[INFO] 使用模拟模型（mock mode）")
+        return None
+    
+    if _model is None:
+        if not MODEL_PATH.exists():
+            raise FileNotFoundError(f"模型文件不存在: {MODEL_PATH}")
+        
+        print(f"[INFO] 正在加载模型: {MODEL_PATH}")
+        _model = torch.load(MODEL_PATH, map_location=DEVICE)
+        _model.eval()
+        print(f"[INFO] 模型加载完成，使用设备: {DEVICE}")
+    
+    return _model
+
+
+def predict(image_tensor):
+    """
+    对图片进行预测
+    
+    Args:
+        image_tensor: 预处理后的图片张量，形状为 (1, 3, 256, 256)
+    
+    Returns:
+        dict: {
+            "prediction": "AI" 或 "Real",
+            "confidence": 置信度百分比,
+            "probabilities": {"AI": 概率, "Real": 概率}
+        }
+    """
+    
+    if USE_MOCK_MODEL:
+        # 模拟模式：返回随机结果，用于测试
+        ai_prob = random.uniform(0.3, 0.95)
+        real_prob = 1 - ai_prob
+        
+        # 随机决定预测结果
+        if random.random() > 0.5:
+            ai_prob, real_prob = real_prob, ai_prob
+        
+        prediction = "AI" if ai_prob > real_prob else "Real"
+        confidence = max(ai_prob, real_prob) * 100
+        
+        return {
+            "prediction": prediction,
+            "confidence": round(confidence, 2),
+            "probabilities": {
+                "AI": round(ai_prob, 4),
+                "Real": round(real_prob, 4)
+            }
+        }
+    
+    # 真实模型推理
+    model = load_model()
+    
+    with torch.no_grad():
+        image_tensor = image_tensor.to(DEVICE)
+        output = model(image_tensor)
+        probabilities = torch.softmax(output, dim=1)
+        
+        # 假设标签顺序为 [AI, Real]（ImageFolder 按字母顺序）
+        ai_prob = probabilities[0][0].item()
+        real_prob = probabilities[0][1].item()
+        
+        prediction = "AI" if ai_prob > real_prob else "Real"
+        confidence = max(ai_prob, real_prob) * 100
+        
+        return {
+            "prediction": prediction,
+            "confidence": round(confidence, 2),
+            "probabilities": {
+                "AI": round(ai_prob, 4),
+                "Real": round(real_prob, 4)
+            }
+        }
