@@ -7,7 +7,7 @@ class CNNet(nn.Module):
         super().__init__()
 
         modelist = nn.ModuleList()
-        for _ in range(5):
+        for _ in range(6):
             modelist.append(
                 bcap(
                     inch=inch,

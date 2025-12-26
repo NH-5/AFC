@@ -66,6 +66,9 @@ def health_check():
     """健康检查接口"""
     return jsonify({"status": "ok"})
 
+@app.route("/")
+def test():
+    return "Hello World"
 
 if __name__ == '__main__':
     # 预加载模型

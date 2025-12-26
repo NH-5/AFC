@@ -7,11 +7,16 @@
 
 import torch
 import random
+import sys
 from pathlib import Path
 
+# 添加 model 目录到系统路径，以便加载模型时能找到 Network 类
+# 假设 model 目录在当前文件的上一级目录的 model 子目录中
+sys.path.append(str(Path(__file__).parent.parent / "model"))
+
 # ========== 配置 ==========
-USE_MOCK_MODEL = True  # 训练完成后改为 False
-MODEL_PATH = Path(__file__).parent / "model.pt"
+USE_MOCK_MODEL = False  # 训练完成后改为 False
+MODEL_PATH = Path(__file__).parent.parent / "best_model" / "model.pt"
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # ========== 模型加载 ==========
@@ -30,7 +35,9 @@ def load_model():
             raise FileNotFoundError(f"模型文件不存在: {MODEL_PATH}")
         
         print(f"[INFO] 正在加载模型: {MODEL_PATH}")
-        _model = torch.load(MODEL_PATH, map_location=DEVICE)
+        # weights_only=False 用于解决 PyTorch 2.6+ 默认的安全限制
+        # 注意：仅加载受信任的模型文件
+        _model = torch.load(MODEL_PATH, map_location=DEVICE, weights_only=False)
         _model.eval()
         print(f"[INFO] 模型加载完成，使用设备: {DEVICE}")
     
