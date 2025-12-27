@@ -9,3 +9,4 @@ jaraco.text
 jaraco.classes
 jaraco.context
 jaraco.functools
+platformdirs

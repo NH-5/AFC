@@ -5,6 +5,7 @@ hiddenimports = collect_submodules('jaraco') + [
     'jaraco.context',
     'jaraco.functools',
     'jaraco.classes',
+    'platformdirs',
 ]
 
 datas = copy_metadata('jaraco.text')
