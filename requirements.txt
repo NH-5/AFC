@@ -1,4 +1,4 @@
-PyQt6==6.6.1
+PyQt6==6.5.2
 requests==2.31.0
 PyInstaller==6.3.0
 torch>=2.0.0
