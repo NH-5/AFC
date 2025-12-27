@@ -20,9 +20,9 @@ jobs:
           - os: ubuntu-latest
             artifact_name: afc-linux
           - os: windows-latest
-            artifact_name: afc-windows
+            artifact_name: afc-win
           - os: macos-latest
-            artifact_name: afc-macos
+            artifact_name: afc-mac
 
     steps:
       - name: Checkout code
@@ -31,7 +31,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
@@ -41,7 +41,14 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --clean --noconfirm --distpath ./dist/${{ matrix.artifact_name }} afc.spec
+          pyinstaller --clean --noconfirm --name afc --distpath ./dist/${{ matrix.artifact_name }} frontend/qtui/main.py
+
+      - name: Rename executable
+        run: |
+          cd dist/${{ matrix.artifact_name }}
+          if [ -f "afc" ]; then mv afc afc-linux; fi
+          if [ -f "afc.exe" ]; then mv afc.exe afc-win.exe; fi
+          if [ -f "afc" ] && [[ "${{ matrix.os }}" == *"macos"* ]]; then mv afc afc-mac; fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -80,7 +87,7 @@ jobs:
           files: |
             artifacts/**/*.exe
             artifacts/afc-linux/**
-            artifacts/afc-macos/**
+            artifacts/afc-mac/**
           draft: false
           prerelease: ${{ steps.release_info.outputs.type == 'TEST' }}
           name: ${{ steps.release_info.outputs.branch }} - ${{ steps.release_info.outputs.version }}
@@ -90,9 +97,9 @@ jobs:
             Multi-platform build for AI Face Detection.
 
             ### Download for your platform:
-            - Windows: `afc-windows/afc.exe`
-            - Linux: `afc-linux/afc`
-            - macOS: `afc-macos/afc`
+            - Windows: `afc-win/afc-win.exe`
+            - Linux: `afc-linux/afc-linux`
+            - macOS: `afc-mac/afc-mac`
 
             ---
             *Built from branch: ${{ github.ref_name }}*
