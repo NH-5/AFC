@@ -39,6 +39,10 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
+      - name: Install 7z
+        if: runner.os != 'Windows'
+        run: sudo apt-get update && sudo apt-get install -y p7zip-full
+
       - name: Build with PyInstaller
         run: |
           pip install pyinstaller
@@ -57,11 +61,23 @@ jobs:
           cd dist/${{ matrix.artifact_name }}
           if (Test-Path "afc.exe") { Rename-Item afc.exe afc-win.exe }
 
+      - name: Create zip package (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          cd dist
+          7z a ${{ matrix.artifact_name }}.zip ${{ matrix.artifact_name }}/afc-linux 2>/dev/null || 7z a ${{ matrix.artifact_name }}.zip ${{ matrix.artifact_name }}/afc-mac
+
+      - name: Create zip package (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd dist
+          Compress-Archive -Path ${{ matrix.artifact_name }}\afc-win.exe -DestinationPath ${{ matrix.artifact_name }}.zip
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: dist/${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_name }}.zip
           retention-days: 1
 
   release:
@@ -91,10 +107,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            artifacts/**/*.exe
-            artifacts/afc-linux/**
-            artifacts/afc-mac/**
+          files: artifacts/**/*.zip
           draft: false
           prerelease: ${{ steps.release_info.outputs.type == 'TEST' }}
           name: ${{ steps.release_info.outputs.branch }} - ${{ steps.release_info.outputs.version }}
@@ -104,9 +117,9 @@ jobs:
             Multi-platform build for AI Face Detection.
 
             ### Download for your platform:
-            - Windows: `afc-win/afc-win.exe`
-            - Linux: `afc-linux/afc-linux`
-            - macOS: `afc-mac/afc-mac`
+            - Windows: `afc-win.zip`
+            - Linux: `afc-linux.zip`
+            - macOS: `afc-mac.zip`
 
             ---
             *Built from branch: ${{ github.ref_name }}*
