@@ -1,28 +1,21 @@
 name: Build and Release
 
-permissions:
-  contents: write
-
 on:
   push:
     tags:
-      - 'v*'          # 正式版标签，如 v1.0.0
-      - 'test-v*'     # 测试版标签，如 test-v0.1.0
+      - 'v*'
+      - 'test-v*'
+
+permissions:
+  contents: write
 
 jobs:
   build:
+    name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        include:
-          - os: ubuntu-latest
-            artifact_name: afc-linux
-          - os: windows-latest
-            artifact_name: afc-win
-          - os: macos-latest
-            artifact_name: afc-mac
 
     steps:
       - name: Checkout code
@@ -37,78 +30,62 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pyinstaller
 
-      - name: Build with PyInstaller
-        run: |
-          pip install pyinstaller
-          pyinstaller --clean --noconfirm --name ${{ matrix.artifact_name }} --hiddenimport=PyQt6.QtCore --hiddenimport=PyQt6.QtWidgets --hiddenimport=PyQt6.QtGui --hiddenimport=requests --hiddenimport=pkgutil --distpath ./dist/${{ matrix.artifact_name }} frontend/qtui/main.py
-
-      - name: Rename executable
+      - name: Build with PyInstaller (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          cd dist/${{ matrix.artifact_name }}
-          if [ -f "afc" ]; then mv afc afc-linux; fi
-          if [ -f "afc" ] && [[ "${{ matrix.os }}" == *"macos"* ]]; then mv afc afc-mac; fi
+          pyinstaller --name AFC \
+            --clean \
+            --onefile \
+            --windowed \
+            --add-data "best_model/model.pt:best_model" \
+            --add-data "model:model" \
+            main_standalone.py
 
-      - name: Rename executable (Windows)
+      - name: Build with PyInstaller (Windows)
         if: runner.os == 'Windows'
         run: |
-          cd dist/${{ matrix.artifact_name }}
-          if (Test-Path "afc.exe") { Rename-Item afc.exe afc-win.exe }
+          pyinstaller --name AFC \
+            --clean \
+            --onefile \
+            --windowed \
+            --add-data "best_model/model.pt;best_model" \
+            --add-data "model;model" \
+            main_standalone.py
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: dist/${{ matrix.artifact_name }}
-          retention-days: 1
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Determine release type and version
-        id: release_info
+      - name: Prepare Artifacts (Linux)
+        if: runner.os == 'Linux'
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          if [[ "$TAG" == test-v* ]]; then
-            echo "type=TEST" >> $GITHUB_OUTPUT
-            echo "version=${TAG#test-}" >> $GITHUB_OUTPUT
-            echo "branch=TEST BUILD" >> $GITHUB_OUTPUT
+          mv dist/AFC dist/AFC-Linux
+
+      - name: Prepare Artifacts (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          # If .app bundle exists, zip it. Otherwise rename binary.
+          if [ -d "dist/AFC.app" ]; then
+            cd dist
+            zip -r AFC-MacOS.zip AFC.app
+            cd ..
+            rm -rf dist/AFC.app
           else
-            echo "type=RELEASE" >> $GITHUB_OUTPUT
-            echo "version=$TAG" >> $GITHUB_OUTPUT
-            echo "branch=RELEASE BUILD" >> $GITHUB_OUTPUT
+            mv dist/AFC dist/AFC-MacOS
           fi
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      - name: Prepare Artifacts (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          ren dist\AFC.exe AFC-Windows.exe
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            artifacts/**/*.exe
-            artifacts/afc-linux/afc
-            artifacts/afc-mac/afc
+            dist/AFC-Linux
+            dist/AFC-MacOS
+            dist/AFC-MacOS.zip
+            dist/AFC-Windows.exe
           draft: false
-          prerelease: ${{ steps.release_info.outputs.type == 'TEST' }}
-          name: ${{ steps.release_info.outputs.branch }} - ${{ steps.release_info.outputs.version }}
-          body: |
-            ## ${{ steps.release_info.outputs.branch }} ${{ steps.release_info.outputs.version }}
-
-            Multi-platform build for AI Face Detection.
-
-            ### Download for your platform:
-            - Windows: `afc-win/afc-win.exe`
-            - Linux: `afc-linux/afc-linux`
-            - macOS: `afc-mac/afc-mac`
-
-            ---
-            *Built from branch: ${{ github.ref_name }}*
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
