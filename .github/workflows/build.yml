@@ -55,6 +55,7 @@ jobs:
           pyi-makespec --name AFC \
             --onefile \
             --windowed \
+            --additional-hooks-dir=. \
             --exclude-module tensorboard \
             --exclude-module torch.distributed \
             --exclude-module matplotlib \
@@ -77,6 +78,7 @@ jobs:
           pyi-makespec --name AFC `
             --onefile `
             --windowed `
+            --additional-hooks-dir=. `
             --exclude-module tensorboard `
             --exclude-module torch.distributed `
             --exclude-module matplotlib `
