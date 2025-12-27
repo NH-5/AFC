@@ -42,14 +42,7 @@ jobs:
       - name: Build with PyInstaller
         run: |
           pip install pyinstaller
-          pyinstaller --clean --noconfirm --name afc \
-            --hiddenimport=PyQt6.QtCore \
-            --hidden-import=PyQt6.QtWidgets \
-            --hidden-import=PyQt6.QtGui \
-            --hidden-import=requests \
-            --hidden-import=pkgutil \
-            --distpath ./dist/${{ matrix.artifact_name }} \
-            frontend/qtui/main.py
+          pyinstaller --clean --noconfirm --name afc --hiddenimport=PyQt6.QtCore --hiddenimport=PyQt6.QtWidgets --hiddenimport=PyQt6.QtGui --hiddenimport=requests --hiddenimport=pkgutil --distpath ./dist/${{ matrix.artifact_name }} frontend/qtui/main.py
 
       - name: Rename executable
         if: runner.os != 'Windows'
