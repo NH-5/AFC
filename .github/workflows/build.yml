@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-      - 'test-v*'
 
 permissions:
   contents: write
@@ -34,24 +33,40 @@ jobs:
       - name: Build with PyInstaller (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          pyinstaller --name AFC \
-            --clean \
+          # Generate spec file first
+          pyi-makespec --name AFC \
             --onefile \
             --windowed \
             --add-data "best_model/model.pt:best_model" \
             --add-data "model:model" \
             main_standalone.py
 
+          # Patch spec file to increase recursion limit (Fixes RecursionError on macOS)
+          echo "import sys ; sys.setrecursionlimit(5000)" > AFC.spec.new
+          cat AFC.spec >> AFC.spec.new
+          mv AFC.spec.new AFC.spec
+
+          # Build from spec
+          pyinstaller --clean AFC.spec
+
       - name: Build with PyInstaller (Windows)
         if: runner.os == 'Windows'
         run: |
-          pyinstaller --name AFC \
-            --clean \
-            --onefile \
-            --windowed \
-            --add-data "best_model/model.pt;best_model" \
-            --add-data "model;model" \
+          # Generate spec file first
+          pyi-makespec --name AFC `
+            --onefile `
+            --windowed `
+            --add-data "best_model/model.pt;best_model" `
+            --add-data "model;model" `
             main_standalone.py
+
+          # Patch spec file to increase recursion limit (PowerShell)
+          $spec = Get-Content AFC.spec
+          "import sys; sys.setrecursionlimit(5000)" | Out-File AFC.spec -Encoding UTF8
+          $spec | Out-File AFC.spec -Append -Encoding UTF8
+
+          # Build from spec
+          pyinstaller --clean AFC.spec
 
       - name: Prepare Artifacts (Linux)
         if: runner.os == 'Linux'
