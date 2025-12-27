@@ -46,7 +46,7 @@ jobs:
       - name: Build with PyInstaller
         run: |
           pip install pyinstaller
-          pyinstaller --clean --noconfirm --name afc --hiddenimport=PyQt6.QtCore --hiddenimport=PyQt6.QtWidgets --hiddenimport=PyQt6.QtGui --hiddenimport=requests --hiddenimport=pkgutil --distpath ./dist/${{ matrix.artifact_name }} frontend/qtui/main.py
+          pyinstaller --clean --noconfirm --name ${{ matrix.artifact_name }} --hiddenimport=PyQt6.QtCore --hiddenimport=PyQt6.QtWidgets --hiddenimport=PyQt6.QtGui --hiddenimport=requests --hiddenimport=pkgutil --distpath ./dist/${{ matrix.artifact_name }} frontend/qtui/main.py
 
       - name: Rename executable
         if: runner.os != 'Windows'
@@ -107,7 +107,10 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*.zip
+          files: |
+            artifacts/**/*.exe
+            artifacts/afc-linux/afc-linux
+            artifacts/afc-mac/afc-mac
           draft: false
           prerelease: ${{ steps.release_info.outputs.type == 'TEST' }}
           name: ${{ steps.release_info.outputs.branch }} - ${{ steps.release_info.outputs.version }}
