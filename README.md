@@ -8,7 +8,7 @@
 
 ### 所用包
 
-`python=3.14.0`,`torch=2.9.1+cu128`, `requests`, `tkinter`, `flask`
+`python=3.14.0`,`torch=2.9.1+cu128`, `requests`, `PyQt6`, `flask`
 
 ### 环境配置
 
@@ -19,7 +19,7 @@
 5. `torch`库安装参考:
     - [pytorch官网](https://pytorch.org):`` pip insatll torch torchvision ``
     - 推荐[阿里云镜像](https://mirrors.aliyun.com)`` pip install torch torchvision -f https://mirrors.aliyun.com/pytorch-wheels/cu128 ``(阿里云镜像可以很方便地通过修改链接中的 *cu128* 来控制版本)
-
+6. 其他库自行安装
 
 ## 版本控制
 
@@ -82,9 +82,12 @@
 以下是字符树形式的文件结构
 ```text
     根目录(例如~/projects/AFC)
-    |-- webui/            #UI界面
-    |   |-- code
-    |-- webserver/        #web服务器
+    |-- frontend/            #前端界面
+    |   |-- qtui/
+    |   |   |-- code
+    |   |-- web/
+    |   |   |-- code
+    |-- beckend/        #web服务器
     |   |-- code
     |-- model/            #模型
     |   |-- data/         #本地数据集
@@ -110,16 +113,19 @@
 graph LR
     Root[根目录<br/>例如:~/projects/AFC]
     
-    Root --> WebUI[webui/<br/>UI界面]
-    Root --> WebServer[webserver/<br/>web服务器]
+    Root --> Front[frontend/<br/>前端]
+    Root --> Back[backend/<br/>后端]
     Root --> Model[model/<br/>模型]
     Root --> Best_Model[best_model/<br/>模型权重文件,多次实验后的最优结果]
     Root --> Report[report/<br/>报告]
     Root --> README[README.md]
+
+    Front --> Qt[qtui/<br/>基于Qt的前端]
+    Qt --> QtCode[codes]
+    Front --> Web[web/<br/>网页前端]
+    Web --> WebCode[codes]
     
-    WebUI --> WebUICode[codes]
-    
-    WebServer --> WebServerCode[codes]
+    Back --> BackCode[codes]
     
     Model --> Data[data/<br/>本地数据集]
     Model --> ModelCode[codes]
