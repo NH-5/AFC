@@ -51,10 +51,13 @@ jobs:
       - name: Build with PyInstaller (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          # Generate spec file
+          # Generate spec file with exclusions to speed up and avoid errors
           pyi-makespec --name AFC \
             --onefile \
             --windowed \
+            --exclude-module tensorboard \
+            --exclude-module torch.distributed \
+            --exclude-module matplotlib \
             --add-data "best_model/model.pt:best_model" \
             --add-data "model:model" \
             main_standalone.py
@@ -70,10 +73,13 @@ jobs:
       - name: Build with PyInstaller (Windows)
         if: runner.os == 'Windows'
         run: |
-          # Generate spec file
+          # Generate spec file with exclusions
           pyi-makespec --name AFC `
             --onefile `
             --windowed `
+            --exclude-module tensorboard `
+            --exclude-module torch.distributed `
+            --exclude-module matplotlib `
             --add-data "best_model/model.pt;best_model" `
             --add-data "model;model" `
             main_standalone.py
@@ -86,105 +92,83 @@ jobs:
           # Build
           pyinstaller --clean AFC.spec
 
-            - name: Prepare Artifacts (Linux)
-              if: runner.os == 'Linux'
-              run: |
-                # Rename binary for release. No compression needed now (size is managed).
-                mv dist/AFC AFC-Linux
-                chmod +x AFC-Linux
+      - name: Prepare Artifacts (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mv dist/AFC AFC-Linux
+          chmod +x AFC-Linux
 
-      
+      - name: Prepare Artifacts (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          if [ -d "dist/AFC.app" ]; then
+            cd dist
+            zip -r ../AFC-MacOS.zip AFC.app
+            cd ..
+          else
+            mv dist/AFC AFC-MacOS
+            zip AFC-MacOS.zip AFC-MacOS
+          fi
 
-            - name: Prepare Artifacts (macOS)
-              if: runner.os == 'macOS'
-              run: |
-                if [ -d "dist/AFC.app" ]; then
-                  cd dist
-                  zip -r ../AFC-MacOS.zip AFC.app
-                  cd ..
-                else
-                  mv dist/AFC AFC-MacOS
-                  zip AFC-MacOS.zip AFC-MacOS
-                fi
+      - name: Prepare Artifacts (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          Move-Item -Path dist\AFC.exe -Destination AFC-Windows.exe
 
-      
+      - name: Upload Artifact (Linux)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-linux
+          path: AFC-Linux
 
-            - name: Prepare Artifacts (Windows)
-              if: runner.os == 'Windows'
-              run: |
-                Move-Item -Path dist\AFC.exe -Destination AFC-Windows.exe
+      - name: Upload Artifact (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-macos
+          path: AFC-MacOS.zip
 
-      
-
-            - name: Upload Artifact (Linux)
-              if: runner.os == 'Linux'
-              uses: actions/upload-artifact@v4
-              with:
-                name: binary-linux
-                path: AFC-Linux
-
-      
-
-            - name: Upload Artifact (macOS)
-              if: runner.os == 'macOS'
-              uses: actions/upload-artifact@v4
-              with:
-                name: binary-macos
-                path: AFC-MacOS.zip
-
-      
-
-            - name: Upload Artifact (Windows)
-              if: runner.os == 'Windows'
-              uses: actions/upload-artifact@v4
-              with:
-                name: binary-windows
-                path: AFC-Windows.exe
-
-      
+      - name: Upload Artifact (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-windows
+          path: AFC-Windows.exe
 
   release:
-          name: Create Release
-          needs: build
-          runs-on: ubuntu-latest
-          if: startsWith(github.ref, 'refs/tags/')
-          
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-linux
+          path: dist
 
-          steps:
-            - name: Download Linux Artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: binary-linux
-                path: dist
+      - name: Download macOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-macos
+          path: dist
 
-      
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: binary-windows
+          path: dist
 
-            - name: Download macOS Artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: binary-macos
-                path: dist
-
-      
-
-            - name: Download Windows Artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: binary-windows
-                path: dist
-
-      
-
-            - name: Release
-              uses: softprops/action-gh-release@v1
-              with:
-                files: |
-                  dist/AFC-Linux
-                  dist/AFC-MacOS.zip
-                  dist/AFC-Windows.exe
-                draft: false
-                prerelease: true
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/AFC-Linux
+            dist/AFC-MacOS.zip
+            dist/AFC-Windows.exe
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
