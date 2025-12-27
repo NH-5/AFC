@@ -23,6 +23,7 @@ a = Analysis(
         'charset_normalizer',
         'idna',
         'certifi',
+        'pkgutil',
     ],
     hookspath=[],
     hooksconfig={},

@@ -77,7 +77,10 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**/*.exe
+          files: |
+            artifacts/**/*.exe
+            artifacts/afc-linux/**
+            artifacts/afc-macos/**
           draft: false
           prerelease: ${{ steps.release_info.outputs.type == 'TEST' }}
           name: ${{ steps.release_info.outputs.branch }} - ${{ steps.release_info.outputs.version }}
