@@ -5,7 +5,7 @@ AFC 后端服务器
 API 端点：POST /predict
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from PIL import Image
 from torchvision import transforms
 import io
@@ -67,8 +67,8 @@ def health_check():
     return jsonify({"status": "ok"})
 
 @app.route("/")
-def test():
-    return "Hello World"
+def index():
+    return render_template("index.html")
 
 if __name__ == '__main__':
     # 预加载模型
