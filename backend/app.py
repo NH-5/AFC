@@ -3,16 +3,26 @@ AFC 后端服务器
 
 启动方式：python app.py
 API 端点：POST /predict
+网页前端: http://localhost:5000/
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from PIL import Image
 from torchvision import transforms
 import io
+from pathlib import Path
 
 from model_loader import predict, load_model
 
-app = Flask(__name__)
+# 获取项目根目录
+PROJECT_ROOT = Path(__file__).parent.parent
+WEB_FRONTEND_PATH = PROJECT_ROOT / 'frontend' / 'web'
+
+app = Flask(
+    __name__,
+    template_folder=WEB_FRONTEND_PATH,
+    static_folder=WEB_FRONTEND_PATH / 'static'
+)
 
 # 图片预处理（与训练时保持一致）
 transform = transforms.Compose([
@@ -66,9 +76,17 @@ def health_check():
     """健康检查接口"""
     return jsonify({"status": "ok"})
 
-@app.route("/test")
-def test():
-    return "hello world"
+
+@app.route('/')
+def index():
+    """网页前端首页"""
+    return send_from_directory(WEB_FRONTEND_PATH / 'templates', 'index.html')
+
+
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    """提供静态文件服务"""
+    return send_from_directory(WEB_FRONTEND_PATH / 'static', filename)
 
 if __name__ == '__main__':
     # 预加载模型

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI人脸检测 - AI Face Detection</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">AI Face Detection</h1>
+            <p class="subtitle">智能识别AI生成与真实人脸照片</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </div>
+                    <p class="upload-text">拖拽图片到此处，或 <span class="upload-link">点击上传</span></p>
+                    <p class="upload-hint">支持 JPG, PNG, GIF, BMP 格式</p>
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                </div>
+            </section>
+
+            <!-- Preview & Result Section -->
+            <section class="result-section" id="resultSection" style="display: none;">
+                <div class="preview-card">
+                    <div class="image-preview">
+                        <img id="previewImage" src="" alt="Preview">
+                        <div class="preview-overlay" id="previewOverlay">
+                            <span class="loading-spinner"></span>
+                            <span class="loading-text">分析中...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <!-- Result Header -->
+                    <div class="result-header">
+                        <div class="result-icon" id="resultIcon">
+                            <span class="icon-text">--</span>
+                        </div>
+                        <div class="result-title">
+                            <h2 id="resultTitle">等待分析...</h2>
+                            <p class="result-subtitle" id="resultSubtitle">上传图片后开始检测</p>
+                        </div>
+                    </div>
+
+                    <!-- Confidence -->
+                    <div class="confidence-section">
+                        <div class="confidence-header">
+                            <span class="confidence-label">置信度</span>
+                            <span class="confidence-value" id="confidenceValue">--</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceFill"></div>
+                        </div>
+                    </div>
+
+                    <!-- Probability Breakdown -->
+                    <div class="probability-section">
+                        <div class="prob-row">
+                            <span class="prob-label">
+                                <span class="prob-dot ai"></span>
+                                AI 生成
+                            </span>
+                            <span class="prob-value" id="aiProb">0%</span>
+                        </div>
+                        <div class="prob-bar">
+                            <div class="prob-fill ai" id="aiProbBar"></div>
+                        </div>
+
+                        <div class="prob-row">
+                            <span class="prob-label">
+                                <span class="prob-dot real"></span>
+                                真实照片
+                            </span>
+                            <span class="prob-value" id="realProb">0%</span>
+                        </div>
+                        <div class="prob-bar">
+                            <div class="prob-fill real" id="realProbBar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" id="resetBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                <path d="M3 3v5h5"/>
+                            </svg>
+                            重新选择
+                        </button>
+                        <button class="btn btn-primary" id="analyzeBtn">
+                            开始分析
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section class="history-section" id="historySection" style="display: none;">
+                <h3 class="history-title">历史记录</h3>
+                <div class="history-list" id="historyList">
+                    <!-- History items will be inserted here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by Deep Learning | CNN + MLP Neural Network</p>
+        </footer>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
