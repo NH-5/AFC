@@ -93,8 +93,8 @@ jobs:
         with:
           files: |
             artifacts/**/*.exe
-            artifacts/afc-linux/afc-linux
-            artifacts/afc-mac/afc-mac
+            artifacts/afc-linux/**
+            artifacts/afc-mac/**
           draft: false
           prerelease: ${{ steps.release_info.outputs.type == 'TEST' }}
           name: ${{ steps.release_info.outputs.branch }} - ${{ steps.release_info.outputs.version }}
