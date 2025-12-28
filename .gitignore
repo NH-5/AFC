@@ -1,9 +1,5 @@
-# tex编译附带文件及pdf结果
-*.aux
-*.log
-*.out
-*.synctex.gz
-*.pdf
+# 报告
+report
 
 # 编辑器配置文件
 .vscode
