@@ -17,7 +17,6 @@ __pycache__
 # 模型文件
 *.pth
 *.pt
-!best_model/model.pt
 
 # logs
 log.txt

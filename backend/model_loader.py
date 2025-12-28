@@ -8,36 +8,16 @@
 import torch
 import random
 import sys
-import os
 from pathlib import Path
-from torchvision import transforms
 
 # 添加 model 目录到系统路径，以便加载模型时能找到 Network 类
 # 假设 model 目录在当前文件的上一级目录的 model 子目录中
 sys.path.append(str(Path(__file__).parent.parent / "model"))
 
-def get_resource_path(relative_path):
-    """获取资源文件的绝对路径 (兼容 PyInstaller 打包)"""
-    if hasattr(sys, '_MEIPASS'):
-        # PyInstaller 解压后的临时目录
-        base_path = Path(sys._MEIPASS)
-    else:
-        # 开发环境：项目根目录
-        base_path = Path(__file__).parent.parent
-    
-    return base_path / relative_path
-
 # ========== 配置 ==========
 USE_MOCK_MODEL = False  # 训练完成后改为 False
-MODEL_PATH = get_resource_path("best_model/model.pt")
+MODEL_PATH = Path(__file__).parent.parent / "best_model" / "model.pt"
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-def get_transform():
-    """获取图片预处理变换"""
-    return transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.ToTensor()
-    ])
 
 # ========== 模型加载 ==========
 _model = None
